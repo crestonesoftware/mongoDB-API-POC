@@ -1,8 +1,11 @@
 const router = require("express").Router();
+const userRoutes = require("./userRoutes");
+
+router.use("/users", userRoutes);
 
 router.use((req, res) =>
   res.send(
-    `You have sentwwww a ${req.method} request to ${req.hostname}:port${req.url}api`
+    `routes/api/index.js handling a ${req.method} request to ${req.hostname} ${req.url}`
   )
 );
 

@@ -4,7 +4,7 @@ const apiRoutes = require("./api");
 router.use("/api", apiRoutes);
 
 router.use((req, res) =>
-  res.send(`You have sent a ${req.method} request to URL ${req.url}`)
+  res.send(`routes/index.js handling a ${req.method} request to URL ${req.url}`)
 );
 
 module.exports = router;
