@@ -1,5 +1,9 @@
-const { Schema, model } = require("mongoose");
-
+const {
+  Schema,
+  model,
+  Types: { ObjectId },
+} = require("mongoose");
+const { Thought } = require("./Thought");
 // Schema for User model
 const userSchema = new Schema(
   {
@@ -11,7 +15,13 @@ const userSchema = new Schema(
       type: String,
       required: true,
     },
-    // ToDo: add thoughts
+    thoughts: [
+      {
+        type: ObjectId,
+        ref: Thought,
+      },
+    ],
+
     // ToDo: add friends
   },
   {
@@ -21,6 +31,6 @@ const userSchema = new Schema(
   }
 );
 
-const User = model('users',userSchema);
+const User = model("users", userSchema);
 
 module.exports = User;
