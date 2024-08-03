@@ -19,10 +19,14 @@ router
   .delete(deleteThought)
   .put(updateThought);
 
-// /api/thoughts/:thoughtId/reactions - add or remove reaction
+// /api/thoughts/:thoughtId/reactions - add reaction
 router
   .route("/:thoughtId/reactions")
   .post(addReactionToThought)
+
+// /api/thoughts/:thoughtId/reactions/:reactionId - remove reaction
+router
+  .route("/:thoughtId/reactions/:reactionId")
   .delete(removeReactionToThought);
 
 router.use((req, res) =>
