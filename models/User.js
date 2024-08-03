@@ -4,16 +4,27 @@ const {
   Types: { ObjectId },
 } = require("mongoose");
 const { Thought } = require("./Thought");
+
+// Custom email validation function
+const validateEmail = function (email) {
+  const re = /^w+([.-]?w+)*@w+([.-]?w+)*(.w{2,3})+$/;
+  return re.test(email);
+};
+
 // Schema for User model
 const userSchema = new Schema(
   {
     username: {
       type: String,
-      required: true,
+      required: "Username is required",
+      unique: true,
+      trim: true,
     },
     email: {
       type: String,
-      required: true,
+      required: "Email address is required",
+      unique: true,
+      trim: true,
     },
     thoughts: [
       {
