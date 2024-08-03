@@ -32,8 +32,12 @@ const userSchema = new Schema(
         ref: Thought,
       },
     ],
-
-    // ToDo: add friends
+    friends: [
+      {
+        type: ObjectId,
+        ref: User,
+      },
+    ],
   },
   {
     toJSON: {
