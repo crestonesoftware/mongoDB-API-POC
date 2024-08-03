@@ -1,13 +1,11 @@
 const { ObjectId } = require("mongoose").Types;
+const { mapValueFieldNames } = require("sequelize/lib/utils");
 const { Thought, User } = require("../models");
 
 module.exports = {
   async getAllThoughts(req, res) {
     const functionName = "getAllThoughts";
     try {
-      const stubString = `reached function ${functionName}() at ${req.method} /api/thoughts-${req.url}`;
-      console.log(stubString);
-
       const thoughtData = await Thought.find();
       res.json(thoughtData);
     } catch (error) {
@@ -17,9 +15,6 @@ module.exports = {
   async getThought(req, res) {
     const functionName = "getThought";
     try {
-      const stubString = `reached function ${functionName}(${req.params.thoughtId}) at ${req.method} /api/thoughts-${req.url}`;
-      console.log(stubString);
-
       const thoughtData = await Thought.findOne({ _id: req.params.thoughtId });
 
       if (!thoughtData) {
@@ -35,9 +30,6 @@ module.exports = {
   async deleteThought(req, res) {
     const functionName = "deleteThought";
     try {
-      const stubString = `reached function ${functionName}(${req.body.thoughtId}) at ${req.method} /api/thoughts-${req.url}`;
-
-      console.log(stubString);
       const thoughtData = await Thought.deleteOne({
         _id: req.params.thoughtId,
       });
@@ -55,9 +47,6 @@ module.exports = {
   async updateThought(req, res) {
     const functionName = "updateThought";
     try {
-      const stubString = `reached function ${functionName}(${req.params.thoughtId}) at ${req.method} /api/thoughts-${req.url} with text ${req.body.text}`;
-      console.log(stubString);
-
       const thoughtData = await Thought.updateOne(
         { _id: req.params.thoughtId },
         req.body
@@ -76,10 +65,6 @@ module.exports = {
   async createThought(req, res) {
     const functionName = "createThought";
     try {
-      const stubString = `reached function ${functionName}() at ${req.method} /api/thoughts-${req.url}`;
-      console.log(stubString);
-      const userData = await User.findOne({ username: req.body.username });
-
       if (!userData) {
         res
           .status(404)
@@ -99,12 +84,42 @@ module.exports = {
   async addReactionToThought(req, res) {
     const functionName = "addReactionToThought";
     try {
-      const stubString = `reached function ${functionName}() at ${req.method} /api/thoughts/:thoughtId/reactions-${req.url}`;
-      console.log(stubString);
+      const thoughData = await Thought.findOne({ _id: req.params.thoughtId });
+      if (!thoughData) return res.status(404).json("No matching thought found");
 
-      const thoughtData = await Thought.create(req.body);
-      //ToDo add through to User
-      res.status(200).json(thoughtData);
+      let reaction = {
+        reactionBody: req.body.reactionBody,
+        username: req.body.username,
+      };
+      // reactionId has yet to be generated
+      // console.log("the reaction is", reaction);
+      thoughData.reactions.push(reaction);
+      // reactionId has now been generated.
+
+      /////////////////////////////////////////////////
+      // MYSTERY and WORKAROUND
+      // after starting the server
+      // - the first reactionId gets a new value
+      // - the _id gets a new value (different from reactionId)
+      // until the server is restarted
+      // - every subsequent reactionId gets the same value as the first reactionId (WHY?!?)
+      // - every subsequent _id gets a new value (as expected)
+
+      // WORKAROUND
+      // because _id is reliably given a new value, replace the duplicate reactionId
+      // with the value from _id
+      thoughData.reactions[thoughData.reactions.length - 1].reactionId =
+        thoughData.reactions[thoughData.reactions.length - 1]._id;
+      // console.log(
+      //   "last reaction in the array is",
+      //   thoughData.reactions[thoughData.reactions.length - 1]
+      // );
+
+      // END OF MYSTERY AND WORKAROUND
+      /////////////////////////////////////////////////
+
+      thoughData.save();
+      res.status(200).json(thoughData);
     } catch (error) {
       res.status(400).json(`${functionName}() failed: ${error}`);
     }
@@ -112,12 +127,17 @@ module.exports = {
   async removeReactionToThought(req, res) {
     const functionName = "removeReactionToThought";
     try {
-      const stubString = `reached function ${functionName}() at ${req.method} /api/thoughts/:thoughtId/reactions-${req.url}`;
-      console.log(stubString);
+      const thoughData = await Thought.findOne({ _id: req.params.thoughtId });
+      if (!thoughData) return res.status(404).json("No matching thought found");
 
-      const thoughtData = await Thought.create(req.body);
-      //ToDo add through to User
-      res.status(200).json(thoughtData);
+      const pos = thoughData.reactions.findIndex(
+        (reaction) => reaction.reactionId.toString() === req.params.reactionId
+      );
+
+      if (pos < 0) return res.status(404).json("No matching reaction found");
+      thoughData.reactions.splice(pos, 1);
+      thoughData.save();
+      res.status(200).json(thoughData.reactionCount);
     } catch (error) {
       res.status(400).json(`${functionName}() failed: ${error}`);
     }
