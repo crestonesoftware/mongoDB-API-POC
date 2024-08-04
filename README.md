@@ -8,7 +8,7 @@ POC of a back-end for a social network:
 
 Repo [on GitHub](https://github.com/crestonesoftware/mongoDB-API-POC)
 
-For a demonstration, [watch this video]([http://www.youtube.com](https://youtu.be/CqBoTSDETZo))
+For a demonstration, [watch this video](https://youtu.be/CqBoTSDETZo)
 
 ## <a name="Table of Contents"></a>Table of Contents
 - [Description](#Description)
